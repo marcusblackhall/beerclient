@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 public interface BeerClient {
     Mono<BeerPagedList> listBeers(Integer pageNumber,
                                         Integer pageSize,
@@ -22,5 +24,6 @@ public interface BeerClient {
     Mono<ResponseEntity> deleteBeer(Integer beerId);
 
     Mono<Beer> getBeerByUpc(String upc);
+    Mono<Beer> findById(UUID id,Boolean showInventoryOnHand);
 
 }

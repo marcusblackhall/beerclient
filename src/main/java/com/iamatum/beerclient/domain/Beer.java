@@ -1,13 +1,20 @@
 package com.iamatum.beerclient.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Beer
  */
+@Data
 public class Beer {
+
+
+    private UUID id;
+
     @JsonProperty("beerName")
     private String beerName = null;
 
