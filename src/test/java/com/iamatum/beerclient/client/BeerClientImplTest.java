@@ -10,11 +10,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.catchThrowableOfType;
 
 class BeerClientImplTest {
 
@@ -68,6 +73,36 @@ class BeerClientImplTest {
         Beer beer = beerMono.block();
         assertThat(beer).isNotNull();
         assertThat(beer.getBeerName()).isEqualTo(testBeer.getBeerName());
+
+    }
+
+    /**
+     * Demonstates threading model.
+     */
+    @Test
+    @DisplayName("Demonstrate thread natur of reactive")
+    void functionalReactiveTest() throws InterruptedException {
+
+        AtomicReference<String> name = new AtomicReference<>();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1, 10,
+                null, null, null);;
+
+                // without stopping for the thread of subscribe you will probably not see the print statement
+        beerPagedListMono
+                .map( beerPagedList -> beerPagedList.getContent().get(0).getId())
+                .map( id -> beerClient.findById(id,false))
+                .flatMap(mono -> mono)
+                .subscribe(
+                        beer -> {
+                            System.out.println("Beer is " + beer.getBeerName());
+                            name.set("I found it");
+                            countDownLatch.countDown();
+                        }
+
+                );
+        countDownLatch.await();
+        assertThat(name.get()).isEqualTo("I found it");
 
     }
 
@@ -134,6 +169,32 @@ class BeerClientImplTest {
         ResponseEntity responseEntity = response.block();
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 
+
+    }
+
+    @Test
+    @DisplayName("Delete a Beer given a uuid test")
+    void shouldHandleExceptionForDeleteWithNonExistingId() {
+
+        UUID uuid = UUID.randomUUID();
+
+
+
+        Mono<ResponseEntity<Void>> responseEntityMono = beerClient.deleteBeer(uuid);
+        ResponseEntity<Void> responseEntity = responseEntityMono.onErrorResume(throwable ->  {
+                    if (throwable instanceof WebClientResponseException){
+                        WebClientResponseException exception = (WebClientResponseException) throwable;
+                        return Mono.just(ResponseEntity.status(exception.getStatusCode()).build());
+                    } else {
+                        throw new RuntimeException(throwable);
+                    }
+
+                }).block();
+
+
+
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
     }
 
