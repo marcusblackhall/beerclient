@@ -17,7 +17,7 @@ public interface BeerClient {
                                         Boolean showInventoryOnHand
     );
 
-    Mono<ResponseEntity> createBeer();
+    Mono<ResponseEntity<Void>> createBeer(Beer beer);
 
     Mono<ResponseEntity> updateBeer(Integer beerId);
 

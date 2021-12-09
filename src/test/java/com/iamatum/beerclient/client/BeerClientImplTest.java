@@ -3,10 +3,15 @@ package com.iamatum.beerclient.client;
 import com.iamatum.beerclient.config.WebClientConfig;
 import com.iamatum.beerclient.domain.Beer;
 import com.iamatum.beerclient.domain.BeerPagedList;
+import com.iamatum.beerclient.domain.BeerStyleEnum;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -91,6 +96,19 @@ class BeerClientImplTest {
 
     @Test
     void createBeer() {
+
+        Beer beer = Beer.builder()
+                .beerName("Boddingtons")
+                .beerStyle(BeerStyleEnum.ALE)
+                .upc("235454444444")
+                .price(new BigDecimal("10.81"))
+                .build();
+
+        Mono<ResponseEntity<Void>> response = beerClient.createBeer(beer);
+
+        ResponseEntity responseEntity = response.block();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
     }
 
     @Test

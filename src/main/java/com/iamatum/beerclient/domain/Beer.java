@@ -1,8 +1,10 @@
 package com.iamatum.beerclient.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -10,6 +12,7 @@ import java.util.UUID;
  * Beer
  */
 @Data
+@Builder
 public class Beer {
 
 
@@ -28,7 +31,7 @@ public class Beer {
     private Integer quantityOnHand = null;
 
     @JsonProperty("price")
-    private String price = null;
+    private BigDecimal price = null;
 
     public Beer beerName(String beerName) {
         this.beerName = beerName;
@@ -107,24 +110,6 @@ public class Beer {
         this.quantityOnHand = quantityOnHand;
     }
 
-    public Beer price(String price) {
-        this.price = price;
-        return this;
-    }
-
-    /**
-     * Get price
-     *
-     * @return price
-     **/
-
-    public String getPrice() {
-        return price;
-    }
-
-    public void setPrice(String price) {
-        this.price = price;
-    }
 
 
     @Override
