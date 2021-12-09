@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -44,7 +43,7 @@ public class BeerClientImpl implements BeerClient {
     @Override
     public Mono<Beer> findById(UUID id, Boolean showInventoryOnHand) {
         return webClient.get().uri(
-                uriBuilder -> uriBuilder.path(WebClientProperties.BEER_V1_PATH_ID)
+                uriBuilder -> uriBuilder.path(WebClientProperties.BEER_V1_PATH_GET_BY_ID)
                         .queryParamIfPresent("showInventoryOnHand", Optional.ofNullable(showInventoryOnHand))
                         .build(id)
 
@@ -54,7 +53,7 @@ public class BeerClientImpl implements BeerClient {
     @Override
     public Mono<Beer> getBeerByUpc(String upc) {
         return webClient.get().uri(
-                uriBuilder -> uriBuilder.path(WebClientProperties.BEERUPC_V1_PATH_ID +"/{upc}")
+                uriBuilder -> uriBuilder.path(WebClientProperties.BEERUPC_V1_PATH_GET_BY_UPC )
                         .build(upc)).retrieve().bodyToMono(Beer.class);
     }
 
