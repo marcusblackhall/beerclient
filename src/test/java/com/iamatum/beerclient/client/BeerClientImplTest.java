@@ -6,6 +6,7 @@ import com.iamatum.beerclient.domain.BeerPagedList;
 import com.iamatum.beerclient.domain.BeerStyleEnum;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +70,7 @@ class BeerClientImplTest {
         assertThat(beer.getBeerName()).isEqualTo(testBeer.getBeerName());
 
     }
+
     @Test
     void shouldRetrieveBeerByUpc() {
         Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1, 10,
@@ -113,10 +115,41 @@ class BeerClientImplTest {
 
     @Test
     void updateBeer() {
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1, 10,
+                null, null, null);
+
+        BeerPagedList pagedList = beerPagedListMono.block();
+        Beer testBeer = pagedList.getContent().get(0);
+
+
+        Beer updateBeer = Beer.builder()
+                .beerName("Marcus changed beer")
+                .beerStyle(testBeer.getBeerStyle())
+                .upc(testBeer.getUpc())
+                .price(testBeer.getPrice())
+                .build();
+
+        Mono<ResponseEntity<Void>> response = beerClient.updateBeer(testBeer.getId(), updateBeer);
+
+        ResponseEntity responseEntity = response.block();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+
     }
 
     @Test
+    @DisplayName("Delete a Beer given a uuid test")
     void deleteBeer() {
+
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1, 10,
+                null, null, null);
+
+        BeerPagedList pagedList = beerPagedListMono.block();
+        Beer deleteBeer = pagedList.getContent().get(0);
+        Mono<ResponseEntity<Void>> response = beerClient.deleteBeer(deleteBeer.getId());
+        ResponseEntity responseEntity = response.block();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
     }
 
     @Test
